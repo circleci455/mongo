@@ -24,7 +24,7 @@ jobs:
           command: |
             tools/circle-generate-config.sh generated_config.yml
       - continuation/continue:
-          configuration_path: generated_config.yml
+          configuration_path: /var/lib/circleci-runner/generated_config.yml
 
 commands:
   maybe_build_certs:
