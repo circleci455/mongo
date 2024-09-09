@@ -15,43 +15,16 @@ orbs:
 jobs:
   setup:
     machine: true
-    resource_class: mongo/ose  # Specify self-hosted runner for the setup job
+    resource_class: mongo/ose  # Specify the self-hosted runner's resource class here
     steps:
       - checkout
       - maybe_build_certs
-      - run:
-          name: Install jq
-          command: sudo apt-get update && sudo apt-get install -y jq 
       - run:
           name: Generate config
           command: |
             tools/circle-generate-config.sh generated_config.yml
       - continuation/continue:
           configuration_path: generated_config.yml
-
-  build:
-    machine: true
-    resource_class: mongo/ose  # Specify self-hosted runner for the build job
-    steps:
-      - checkout
-      - run:
-          name: Build project
-          command: |
-            make build
-      - run:
-          name: Run tests
-          command: |
-            make test
-
-  deploy:
-    machine: true
-    resource_class: mongo/ose  # Specify self-hosted runner for the deploy job
-    steps:
-      - checkout
-      - run:
-          name: Deploy to production
-          command: |
-            ./deploy.sh
 
 commands:
   maybe_build_certs:
@@ -80,15 +53,7 @@ commands:
             - ~/project/tools/ssl/mongooseim
 
 workflows:
-  setup_and_build:
+  setup:
     jobs:
       - setup:
-          filters: *all_tags
-      - build:
-          requires:
-            - setup
-          filters: *all_tags
-      - deploy:
-          requires:
-            - build
           filters: *all_tags
